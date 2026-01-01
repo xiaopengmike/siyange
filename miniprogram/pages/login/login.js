@@ -117,11 +117,15 @@ Page({
 
                 if (result.success) {
                     const teacher = result.teacher;
+                    // 特殊逻辑：18871458537 既是老师也是校长
+                    const isPrincipal = (account === '18871458537');
+
                     currentUser = {
                         id: teacher.teacherId,
                         name: teacher.name,
-                        role: 'teacher',
-                        color: teacher.color
+                        role: isPrincipal ? 'principal' : 'teacher',
+                        color: teacher.color,
+                        phone: account // 保留手机号方便后续权限判断
                     };
                 } else {
                     wx.showToast({ title: result.error || '登录失败', icon: 'error' });
