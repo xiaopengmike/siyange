@@ -1,0 +1,146 @@
+/* pages/profile/profile.wxss */
+.profile-container {
+  padding: 30rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 用户信息卡片 */
+.user-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 8rpx 30rpx rgba(74, 144, 217, 0.15);
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.1);
+}
+
+.avatar-text {
+  color: #fff;
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.user-role {
+  display: inline-flex;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.user-role.teacher {
+  background: rgba(74, 144, 217, 0.1);
+  color: #4A90D9;
+}
+
+.user-role.principal {
+  background: rgba(255, 193, 7, 0.15);
+  color: #F59E0B;
+}
+
+/* 功能菜单 */
+.menu-section {
+  margin-bottom: 40rpx;
+}
+
+.menu-title {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 20rpx;
+  padding-left: 10rpx;
+}
+
+.menu-list {
+  background: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  transition: background 0.2s;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background: #f9f9f9;
+}
+
+.menu-icon {
+  font-size: 40rpx;
+  margin-right: 24rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.menu-arrow {
+  font-size: 36rpx;
+  color: #ccc;
+}
+
+/* 退出登录 */
+.logout-section {
+  margin-top: 60rpx;
+}
+
+.logout-btn {
+  background: #fff;
+  color: #ff4d4f;
+  border: 2rpx solid #ff4d4f;
+  border-radius: 50rpx;
+  font-size: 30rpx;
+  padding: 24rpx 0;
+}
+
+.logout-btn::after {
+  border: none;
+}
+
+/* 底部版本号 */
+.footer {
+  position: fixed;
+  bottom: 180rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.version {
+  font-size: 24rpx;
+  color: #ccc;
+}

@@ -1,0 +1,121 @@
+/* pages/schedule/schedule.wxss */
+
+.schedule-container {
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f8fa;
+}
+
+/* 控制栏 */
+.control-bar {
+  padding: 24rpx 30rpx;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  z-index: 20;
+}
+
+.user-info-section {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-circle {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-right: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.teacher-name-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.switch-hint {
+  font-size: 20rpx;
+  color: #999999;
+  margin-top: 4rpx;
+}
+
+.logout-btn {
+  padding: 12rpx 24rpx;
+  background: #f5f5f5;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.logout-btn:active {
+  background: #eeeeee;
+}
+
+/* 周切换器 */
+.week-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 0;
+  background: #ffffff;
+  border-bottom: 1rpx solid #eeeeee;
+  position: relative;
+}
+
+.arrow-btn {
+  width: 80rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666666;
+  font-size: 28rpx;
+}
+
+.arrow-btn:active {
+  opacity: 0.6;
+}
+
+.current-week {
+  padding: 0 30rpx;
+}
+
+.week-text {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333333;
+}
+
+.today-btn {
+  position: absolute;
+  right: 30rpx;
+  font-size: 24rpx;
+  color: #4A90D9;
+  padding: 8rpx 16rpx;
+  background: rgba(74, 144, 217, 0.1);
+  border-radius: 20rpx;
+}
+
+/* 课表内容区 */
+.schedule-content {
+  flex: 1;
+  padding: 20rpx;
+  overflow: hidden;
+  box-sizing: border-box;
+}

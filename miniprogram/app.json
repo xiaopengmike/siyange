@@ -1,0 +1,40 @@
+{
+  "pages": [
+    "pages/schedule/schedule",
+    "pages/students/students",
+    "pages/profile/profile",
+    "pages/login/login",
+    "pages/course-edit/course-edit",
+    "pages/student-edit/student-edit"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#4A90D9",
+    "navigationBarTitleText": "思研阁排课系统",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4A90D9",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/schedule/schedule",
+        "text": "课表"
+      },
+      {
+        "pagePath": "pages/students/students",
+        "text": "学生"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

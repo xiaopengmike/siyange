@@ -1,0 +1,73 @@
+<!--components/schedule-grid/schedule-grid.wxml-->
+<view class="schedule-grid-container">
+  <!-- 表头 - 星期 -->
+  <view class="header-container">
+    <view class="header-row">
+      <view class="time-header-cell">时间</view>
+      <view 
+        class="day-header-cell {{day.isToday ? 'today' : ''}}" 
+        wx:for="{{weekDays}}" 
+        wx:key="date"
+        wx:for-item="day"
+      >
+        <text class="day-name">{{day.dayName}}</text>
+        <text class="day-num">{{day.month}}/{{day.dayNum}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 表格内容 -->
+  <scroll-view class="grid-content" scroll-y scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="grid-body">
+      <!-- 时间轴列 -->
+      <view class="time-column">
+        <view 
+          class="time-cell" 
+          wx:for="{{timeSlots}}" 
+          wx:key="time"
+          wx:for-item="slot"
+        >
+          {{slot.time}}
+        </view>
+      </view>
+
+      <!-- 日期列 -->
+      <view class="days-container">
+        <view 
+          class="day-column" 
+          wx:for="{{weekDays}}" 
+          wx:key="date"
+          wx:for-item="day"
+        >
+          <!-- 背景网格（仅处理点击添加） -->
+          <view 
+            class="grid-cell {{getCellClass(day.date, slot.time)}}"
+            wx:for="{{timeSlots}}" 
+            wx:key="time"
+            wx:for-item="slot"
+            data-date="{{day.date}}"
+            data-time="{{slot.time}}"
+            data-day-name="{{day.dayName}}"
+            bindtap="onCellTap"
+          ></view>
+
+          <!-- 课程图层（绝对定位覆盖在网格上） -->
+          <view class="course-layer" wx:if="{{coursesByDay[day.date]}}">
+            <view 
+              class="course-block" 
+              wx:for="{{coursesByDay[day.date]}}" 
+              wx:for-item="course"
+              wx:key="_id"
+              style="{{course.style}}; background-color: {{course.color || '#4A90D9'}}"
+              catchtap="onCourseTap"
+              data-course="{{course}}"
+            >
+              <text class="course-name">{{course.courseName}}</text>
+              <text class="course-student">{{course.studentName}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

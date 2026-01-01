@@ -1,0 +1,56 @@
+<!--pages/schedule/schedule.wxml-->
+<view class="container schedule-container">
+  <!-- 顶部控制栏 -->
+  <view class="control-bar">
+    <!-- 老师信息/选择器 (校长可见) -->
+    <view class="user-info-section" wx:if="{{isPrincipal}}" bindtap="showTeacherSelector">
+      <view class="avatar-circle" style="background-color: {{currentTeacher.color || '#4A90D9'}}">
+        {{currentTeacher.name[0]}}
+      </view>
+      <view class="teacher-name-group">
+        <text class="teacher-name">{{currentTeacher.name}}的课表</text>
+        <text class="switch-hint">点击切换 ▼</text>
+      </view>
+    </view>
+    
+    <!-- 老师信息 (老师可见) -->
+    <view class="user-info-section" wx:else>
+      <view class="avatar-circle" style="background-color: {{currentUser.color || '#4A90D9'}}">
+        {{currentUser.name[0]}}
+      </view>
+      <text class="teacher-name">{{currentUser.name}}</text>
+    </view>
+
+    <!-- 退出登录按钮 -->
+    <view class="logout-btn" bindtap="handleLogout">
+      <text>退出</text>
+    </view>
+  </view>
+
+  <!-- 周切换器 -->
+  <view class="week-switcher">
+    <view class="arrow-btn" bindtap="prevWeek">
+      <text>◀</text>
+    </view>
+    <view class="current-week">
+      <text class="week-text">{{weekDisplayText}}</text>
+    </view>
+    <view class="arrow-btn" bindtap="nextWeek">
+      <text>▶</text>
+    </view>
+    <view class="today-btn" bindtap="goToday" wx:if="{{weekOffset !== 0}}">
+      <text>回今天</text>
+    </view>
+  </view>
+
+  <!-- 课表组件 -->
+  <view class="schedule-content">
+    <schedule-grid 
+      courses="{{courses}}"
+      weekOffset="{{weekOffset}}"
+      selectedTeacherId="{{currentTeacher.teacherId}}"
+      bind:cellTap="onAddCourse"
+      bind:courseTap="onEditCourse"
+    />
+  </view>
+</view>

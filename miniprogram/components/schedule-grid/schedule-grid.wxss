@@ -1,0 +1,190 @@
+/* components/schedule-grid/schedule-grid.wxss */
+
+.schedule-grid-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 表头样式 */
+.header-container {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #4A90D9 0%, #6BA5E7 100%);
+}
+
+.header-row {
+  display: flex;
+  height: 100rpx;
+}
+
+.time-header-cell {
+  width: 80rpx;
+  min-width: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.day-header-cell {
+  flex: 1; /* 均分空间 */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx; /* 稍微缩小字体以适应 */
+  color: #ffffff;
+  border-left: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.day-header-cell.today {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.day-name {
+  font-weight: 600;
+  margin-bottom: 4rpx;
+}
+
+.day-num {
+  font-size: 20rpx;
+  opacity: 0.85;
+}
+
+/* 表格内容区域 */
+.grid-scroll-y {
+  flex: 1;
+  overflow: hidden;
+}
+.grid-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.grid-body {
+  display: flex;
+  height: 100%;
+}
+
+/* 时间列 */
+.time-column {
+  width: 80rpx;
+  min-width: 80rpx;
+  background: #fafafa;
+  border-right: 1rpx solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+}
+
+.time-cell {
+  flex: 1; /* 均分高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #666666;
+  border-bottom: 1rpx solid #eeeeee;
+}
+
+/* 日期列容器 */
+.days-container {
+  display: flex;
+  flex: 1;
+}
+
+.day-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* 关键：相对定位，作为课程图层的容器 */
+}
+
+/* 表格单元格 */
+.grid-cell {
+  flex: 1; /* 均分高度 */
+  border-bottom: 1rpx solid #eeeeee;
+  border-right: 1rpx solid #eeeeee;
+  position: relative;
+  background: #ffffff;
+  transition: background 0.2s ease;
+}
+
+.grid-cell:active {
+  background: rgba(74, 144, 217, 0.1);
+}
+
+/* 今天的列 */
+.grid-cell.today-column {
+  background: rgba(74, 144, 217, 0.05);
+}
+
+/* 课程图层 */
+.course-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* 让点击穿透到下面的 grid-cell，除非点击的是 course-block */
+  z-index: 10;
+}
+
+/* 课程块 */
+.course-block {
+  position: absolute;
+  left: 4rpx;
+  right: 4rpx;
+  border-radius: 8rpx;
+  padding: 6rpx 10rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* 改为从顶部开始布局 */
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+  pointer-events: auto; /* 允许点击课程 */
+  z-index: 20;
+}
+
+.course-name {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.course-student {
+  font-size: 18rpx;
+  color: rgba(255, 255, 255, 0.85);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2rpx;
+}
+
+/* 已过时间段 */
+.grid-cell.past {
+  background: #f5f5f5;
+}
+
+/* 不可用时间段 */
+.grid-cell.unavailable {
+  background: repeating-linear-gradient(
+    45deg,
+    #f9f9f9,
+    #f9f9f9 10rpx,
+    #f0f0f0 10rpx,
+    #f0f0f0 20rpx
+  );
+}

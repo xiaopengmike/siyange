@@ -1,0 +1,72 @@
+<!--pages/login/login.wxml-->
+<view class="login-container">
+  <!-- Logo区域 -->
+  <view class="logo-section">
+    <view class="logo-icon">
+      <text class="logo-text">思研阁</text>
+    </view>
+    <text class="app-title">老师排课系统</text>
+    <text class="app-subtitle">高效管理您的课程安排</text>
+  </view>
+
+  <!-- 角色选择卡片 -->
+  <view class="card role-card">
+    <text class="card-title">选择您的身份</text>
+    
+    <view class="role-options">
+      <view 
+        class="role-item {{selectedRole === 'teacher' ? 'active' : ''}}"
+        bindtap="selectRole"
+        data-role="teacher"
+      >
+        <view class="role-icon teacher-icon">👨‍🏫</view>
+        <text class="role-name">老师</text>
+        <text class="role-desc">管理自己的课程</text>
+      </view>
+      
+      <view 
+        class="role-item {{selectedRole === 'principal' ? 'active' : ''}}"
+        bindtap="selectRole"
+        data-role="principal"
+      >
+        <view class="role-icon principal-icon">👑</view>
+        <text class="role-name">校长</text>
+        <text class="role-desc">管理所有老师课程</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 老师选择 (仅老师身份时显示) -->
+  <view class="card teacher-select-card" wx:if="{{selectedRole === 'teacher'}}">
+    <text class="card-title">选择老师</text>
+    
+    <picker 
+      mode="selector" 
+      range="{{teachers}}" 
+      range-key="name"
+      value="{{selectedTeacherIndex}}"
+      bindchange="onTeacherChange"
+    >
+      <view class="picker-display">
+        <text class="picker-value">{{selectedTeacher ? selectedTeacher.name : '请选择老师'}}</text>
+        <text class="picker-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 登录按钮 -->
+  <view class="login-btn-container">
+    <button 
+      class="btn btn-primary login-btn" 
+      bindtap="handleLogin"
+      disabled="{{!canLogin}}"
+    >
+      进入系统
+    </button>
+  </view>
+
+  <!-- 底部说明 -->
+  <view class="footer-text">
+    <text>思研阁教育科技</text>
+  </view>
+</view>

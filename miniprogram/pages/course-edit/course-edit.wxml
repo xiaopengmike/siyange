@@ -1,0 +1,125 @@
+<!--pages/course-edit/course-edit.wxml-->
+<view class="container edit-container">
+  <form bindsubmit="onSubmit">
+    <!-- 课程基本信息卡片 -->
+    <view class="card">
+      <view class="form-header">
+        <text class="form-title">{{mode === 'add' ? '添加课程' : '编辑课程'}}</text>
+        <view class="teacher-tag" wx:if="{{teacherName}}">
+          <text>{{teacherName}}</text>
+        </view>
+      </view>
+
+      <!-- 时间信息 (只读小时，选择分钟) -->
+      <view class="info-row time-edit-row">
+        <view class="info-label">上课时间</view>
+        <view class="time-pickers">
+          <text class="date-text">{{date}} ({{dayName}})</text>
+          <view class="picker-group">
+            <text class="hour-text">{{hour}}: </text>
+            <picker mode="selector" range="{{minutesRange}}" value="{{minuteIndex}}" bindchange="onMinuteChange">
+              <view class="minute-picker">{{minutesRange[minuteIndex]}}</view>
+            </picker>
+          </view>
+        </view>
+      </view>
+
+      <!-- 课程时长 -->
+      <view class="input-group">
+        <text class="input-label">课程时长</text>
+        <radio-group class="duration-group" bindchange="onDurationChange">
+          <label class="radio-label {{duration === 60 ? 'active' : ''}}">
+            <radio value="60" checked="{{duration === 60}}" hidden /> 1小时
+          </label>
+          <label class="radio-label {{duration === 120 ? 'active' : ''}}">
+            <radio value="120" checked="{{duration === 120}}" hidden /> 2小时
+          </label>
+        </radio-group>
+      </view>
+
+      <!-- 课程名称 -->
+      <view class="input-group">
+        <text class="input-label">课程名称 <text class="required">*</text></text>
+        <input 
+          class="input-field" 
+          name="courseName" 
+          placeholder="请输入课程名称，如：托福听力" 
+          value="{{course.courseName}}"
+        />
+      </view>
+
+      <!-- 选择学生 -->
+      <view class="input-group">
+        <view class="label-row">
+          <text class="input-label">选择学生 <text class="required">*</text></text>
+          <text class="add-link" bindtap="onAddStudent">+ 新增学生</text>
+        </view>
+        
+        <picker 
+          mode="selector" 
+          range="{{students}}" 
+          range-key="name"
+          value="{{selectedStudentIndex}}"
+          bindchange="onStudentChange"
+        >
+          <view class="picker-field {{selectedStudent ? '' : 'placeholder'}}">
+            <view class="picker-content" wx:if="{{selectedStudent}}">
+              <view class="student-color" style="background-color: {{selectedStudent.color || '#4A90D9'}}"></view>
+              <text class="student-name">{{selectedStudent.name}}</text>
+              <text class="student-phone" wx:if="{{selectedStudent.phone}}">{{selectedStudent.phone}}</text>
+            </view>
+            <text wx:else>请选择学生</text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </picker>
+
+        <!-- 暂无学生提示 -->
+        <view class="no-student-tip" wx:if="{{students.length === 0}}">
+          <text>暂无学生，</text>
+          <text class="link" bindtap="onAddStudent">点击添加</text>
+        </view>
+      </view>
+      
+      <!-- 备注 -->
+      <view class="input-group">
+        <text class="input-label">备注 (可选)</text>
+        <textarea 
+          class="textarea-field" 
+          name="notes" 
+          placeholder="课程相关备注信息" 
+          value="{{course.notes}}"
+          auto-height
+        />
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="btn-area">
+      <button 
+        class="btn btn-primary mb-30" 
+        form-type="submit"
+        loading="{{submitting}}"
+        disabled="{{submitting}}"
+      >
+        保存课程
+      </button>
+      
+      <button 
+        wx:if="{{mode === 'edit'}}" 
+        class="btn btn-danger mb-30" 
+        bindtap="handleDelete"
+        disabled="{{submitting}}"
+      >
+        删除课程
+      </button>
+      
+      <button 
+        class="btn btn-secondary" 
+        bindtap="handleCancel"
+        disabled="{{submitting}}"
+      >
+        取消
+      </button>
+    </view>
+  </form>
+</view>

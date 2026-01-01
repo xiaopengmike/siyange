@@ -1,0 +1,90 @@
+<!--pages/student-edit/student-edit.wxml-->
+<view class="container edit-container">
+  <!-- 学生信息卡片 -->
+  <view class="card">
+    <view class="form-header">
+      <text class="form-title">{{mode === 'add' ? '添加学生' : '编辑学生'}}</text>
+    </view>
+
+    <!-- 学生姓名 -->
+    <view class="input-group">
+      <text class="input-label">学生姓名 <text class="required">*</text></text>
+      <input 
+        class="input-field" 
+        placeholder="请输入学生姓名" 
+        value="{{student.name}}"
+        bindinput="onNameInput"
+      />
+    </view>
+
+    <!-- 家长姓名 -->
+    <view class="input-group">
+      <text class="input-label">家长姓名</text>
+      <input 
+        class="input-field" 
+        placeholder="请输入家长姓名" 
+        value="{{student.parentName}}"
+        bindinput="onParentNameInput"
+      />
+    </view>
+
+    <!-- 颜色选择 -->
+    <view class="input-group">
+      <text class="input-label">标识颜色</text>
+      <view class="color-picker">
+        <view 
+          class="color-item {{selectedColorIndex === index ? 'selected' : ''}}"
+          wx:for="{{colors}}" 
+          wx:key="index"
+          data-index="{{index}}"
+          style="background-color: {{item}}"
+          bindtap="onColorSelect"
+        >
+          <text wx:if="{{selectedColorIndex === index}}" class="check-icon">✓</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="input-group">
+      <text class="input-label">备注</text>
+      <textarea 
+        class="textarea-field" 
+        placeholder="可填写学生学习情况、特殊需求等" 
+        value="{{student.notes}}"
+        bindinput="onNotesInput"
+        auto-height
+        maxlength="500"
+      />
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="btn-area">
+    <button 
+      class="btn btn-primary mb-30" 
+      bindtap="onSubmit"
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+    >
+      保存
+    </button>
+    
+    <button 
+      wx:if="{{mode === 'edit'}}" 
+      class="btn btn-danger mb-30" 
+      bindtap="handleDelete"
+      disabled="{{submitting}}"
+    >
+      删除学生
+    </button>
+    
+    <button 
+      class="btn btn-secondary" 
+      bindtap="handleCancel"
+      disabled="{{submitting}}"
+    >
+      取消
+    </button>
+  </view>
+</view>

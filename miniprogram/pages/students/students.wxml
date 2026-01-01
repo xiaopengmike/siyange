@@ -1,0 +1,93 @@
+<!--pages/students/students.wxml-->
+<view class="container students-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <text class="search-icon">🔍</text>
+      <input 
+        class="search-input" 
+        placeholder="搜索学生姓名、电话" 
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+      />
+      <text 
+        class="clear-icon" 
+        wx:if="{{searchText}}" 
+        bindtap="onClearSearch"
+      >✕</text>
+    </view>
+    <view class="add-btn" bindtap="onAddStudent">
+      <text>+ 添加</text>
+    </view>
+  </view>
+
+  <!-- 学生数量统计 -->
+  <view class="stats-bar" wx:if="{{students.length > 0}}">
+    <text class="stats-text">共 {{filteredStudents.length}} 名学生</text>
+  </view>
+
+  <!-- 学生列表 -->
+  <view class="student-list" wx:if="{{filteredStudents.length > 0}}">
+    <view 
+      class="student-card" 
+      wx:for="{{filteredStudents}}" 
+      wx:key="_id"
+    >
+      <view class="student-main" data-id="{{item._id}}" bindtap="onStudentTap">
+        <view class="student-avatar" style="background-color: {{item.color || '#4A90D9'}}">
+          {{item.name[0]}}
+        </view>
+        <view class="student-info">
+          <text class="student-name">{{item.name}}</text>
+          <text class="student-detail" wx:if="{{item.parentName}}">家长: {{item.parentName}}</text>
+          <text class="student-detail" wx:if="{{item.phone}}">电话: {{item.phone}}</text>
+        </view>
+        <text class="arrow">›</text>
+      </view>
+      
+      <!-- 快捷操作 -->
+      <view class="student-actions" wx:if="{{item.phone || item.parentPhone}}">
+        <view 
+          class="action-btn" 
+          wx:if="{{item.phone}}"
+          data-phone="{{item.phone}}"
+          catchtap="onCallPhone"
+        >
+          <text class="action-icon">📞</text>
+          <text>学生</text>
+        </view>
+        <view 
+          class="action-btn" 
+          wx:if="{{item.parentPhone}}"
+          data-phone="{{item.parentPhone}}"
+          catchtap="onCallPhone"
+        >
+          <text class="action-icon">📞</text>
+          <text>家长</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索无结果 -->
+  <view class="empty-state" wx:elif="{{searchText && students.length > 0}}">
+    <text class="empty-icon">🔍</text>
+    <text class="empty-text">未找到匹配的学生</text>
+    <text class="empty-hint">尝试其他关键词</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:elif="{{!loading && students.length === 0}}">
+    <text class="empty-icon">📚</text>
+    <text class="empty-text">暂无学生</text>
+    <text class="empty-hint">点击右上角添加学生</text>
+    <button class="empty-btn" bindtap="onAddStudent">添加第一位学生</button>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+</view>
