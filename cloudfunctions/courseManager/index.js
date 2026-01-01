@@ -22,12 +22,53 @@ exports.main = async (event, context) => {
             return deleteCourse(data)
         case 'getByTeacher':
             return getCoursesByTeacher(data)
+        case 'getByStudent':
+            return getCoursesByStudent(data)
         case 'getAll':
             return getAllCourses(data)
         case 'checkConflict':
             return checkTimeConflict(data)
         default:
             return { success: false, error: '未知操作' }
+    }
+}
+
+// 获取学生的课程
+async function getCoursesByStudent(data) {
+    const { studentId, studentName, startDate, endDate } = data
+
+    try {
+        // 使用 _.or 同时匹配 ID 或 姓名 (兼容新旧数据)
+        const query = {
+            date: _.gte(startDate).and(_.lte(endDate)),
+            $or: [
+                { studentId: studentId },
+                { studentName: studentName }
+            ]
+        }
+
+        // 注意：在云开发中，_.or 也可以这样写，或者使用 MongoDB 原生 $or
+        const finalQuery = {
+            date: _.gte(startDate).and(_.lte(endDate)),
+            _id: _.exists(true) // 占位符
+        }
+
+        const { data: courses } = await db.collection('courses')
+            .where(_.and([
+                { date: _.gte(startDate).and(_.lte(endDate)) },
+                _.or([
+                    { studentId: studentId },
+                    { studentName: studentName }
+                ])
+            ]))
+            .orderBy('date', 'asc')
+            .orderBy('startTime', 'asc')
+            .get()
+
+        return { success: true, data: courses }
+    } catch (err) {
+        console.error('获取学生课程失败:', err)
+        return { success: false, error: err.message || err.errMsg, data: [] }
     }
 }
 

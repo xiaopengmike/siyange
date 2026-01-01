@@ -1,0 +1,87 @@
+<!--pages/register/register.wxml-->
+<view class="login-container">
+  <view class="logo-section">
+    <view class="logo-icon">
+      <text class="logo-text">思研阁</text>
+    </view>
+    <text class="app-title">新用户注册</text>
+  </view>
+
+  <!-- 第一步：选择注册角色 -->
+  <view class="card role-card" wx:if="{{step === 1}}">
+    <text class="card-title">请选择您的注册角色</text>
+    <view class="role-options">
+      <view class="role-item" bindtap="selectRole" data-role="teacher">
+        <view class="role-icon teacher-icon">👨‍🏫</view>
+        <text class="role-name">老师</text>
+        <text class="role-desc">注册并管理课程</text>
+      </view>
+      <view class="role-item" bindtap="selectRole" data-role="student">
+        <view class="role-icon student-icon">👫</view>
+        <text class="role-name">家长/学生</text>
+        <text class="role-desc">注册并查看课表</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 第二步：填写详细信息 -->
+  <view class="login-step-2" wx:if="{{step === 2}}">
+    <view class="back-link" bindtap="goToStep1">
+      <text>← 返回选择角色</text>
+    </view>
+    <view class="role-display-title">
+      <text>注册角色：{{role === 'teacher' ? '老师' : '家长/学生'}}</text>
+    </view>
+
+    <view class="card login-form-card">
+      <text class="card-title">基本信息</text>
+      
+      <view class="input-group">
+        <view class="input-icon">👤</view>
+        <input 
+          class="login-input" 
+          placeholder="{{role === 'teacher' ? '您的姓名' : '学生姓名'}}" 
+          value="{{name}}"
+          bindinput="onNameInput"
+        />
+      </view>
+
+      <view class="input-group">
+        <view class="input-icon">📱</view>
+        <input 
+          class="login-input" 
+          placeholder="设为登录账号(手机号)" 
+          type="number"
+          value="{{phone}}"
+          bindinput="onPhoneInput"
+        />
+      </view>
+
+      <view class="input-group">
+        <view class="input-icon">🔒</view>
+        <input 
+          class="login-input" 
+          placeholder="设置登录密码" 
+          password
+          value="{{password}}"
+          bindinput="onPasswordInput"
+        />
+      </view>
+    </view>
+
+    <view class="login-btn-container">
+      <button 
+        class="btn btn-primary login-btn" 
+        bindtap="handleRegister"
+        disabled="{{!canRegister || submitting}}"
+        loading="{{submitting}}"
+      >
+        完成注册
+      </button>
+    </view>
+  </view>
+
+  <view class="footer-text" bindtap="goToLogin">
+    <text>已有账号？点击去登录</text>
+  </view>
+</view>

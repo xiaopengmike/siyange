@@ -63,7 +63,7 @@
               data-course="{{course}}"
             >
               <text class="course-name">{{course.courseName}}</text>
-              <text class="course-student">{{course.studentName}}</text>
+              <text class="course-student">{{viewingRole === 'student' ? (course.teacherName || '老师') : course.studentName}}</text>
             </view>
           </view>
         </view>

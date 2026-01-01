@@ -107,6 +107,8 @@ Page({
             let result
 
             if (mode === 'add') {
+                const currentUser = app.globalData.currentUser;
+                student.creatorId = currentUser.teacherId || currentUser.phone || currentUser._id;
                 result = await db.addStudent(student)
             } else {
                 result = await db.updateStudent(studentId, student)

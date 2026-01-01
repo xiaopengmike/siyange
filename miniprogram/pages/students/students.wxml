@@ -6,7 +6,7 @@
       <text class="search-icon">🔍</text>
       <input 
         class="search-input" 
-        placeholder="搜索学生姓名、电话" 
+        placeholder="{{isStudent ? '搜索老师姓名' : '搜索学生姓名、电话'}}" 
         value="{{searchText}}"
         bindinput="onSearchInput"
         confirm-type="search"
@@ -17,21 +17,21 @@
         bindtap="onClearSearch"
       >✕</text>
     </view>
-    <view class="add-btn" bindtap="onAddStudent">
+    <view class="add-btn" bindtap="onAddStudent" wx:if="{{!isStudent}}">
       <text>+ 添加</text>
     </view>
   </view>
 
-  <!-- 学生数量统计 -->
-  <view class="stats-bar" wx:if="{{students.length > 0}}">
-    <text class="stats-text">共 {{filteredStudents.length}} 名学生</text>
+  <!-- 数量统计 -->
+  <view class="stats-bar" wx:if="{{items.length > 0}}">
+    <text class="stats-text">共 {{filteredItems.length}} 位{{isStudent ? '老师' : '学生'}}</text>
   </view>
 
-  <!-- 学生列表 -->
-  <view class="student-list" wx:if="{{filteredStudents.length > 0}}">
+  <!-- 列表 -->
+  <view class="student-list" wx:if="{{filteredItems.length > 0}}">
     <view 
       class="student-card" 
-      wx:for="{{filteredStudents}}" 
+      wx:for="{{filteredItems}}" 
       wx:key="_id"
     >
       <view class="student-main" data-id="{{item._id}}" bindtap="onStudentTap">
@@ -40,49 +40,51 @@
         </view>
         <view class="student-info">
           <text class="student-name">{{item.name}}</text>
-          <text class="student-detail" wx:if="{{item.parentName}}">家长: {{item.parentName}}</text>
-          <text class="student-detail" wx:if="{{item.phone}}">电话: {{item.phone}}</text>
+          <text class="student-detail" wx:if="{{!isStudent && item.parentName}}">家长: {{item.parentName}}</text>
         </view>
-        <text class="arrow">›</text>
+        <text class="arrow" wx:if="{{!isStudent}}">›</text>
       </view>
       
-      <!-- 快捷操作 -->
-      <view class="student-actions" wx:if="{{item.phone || item.parentPhone}}">
+      <!-- 快捷操作 (仅老师视角显示：查看课表) -->
+      <view class="student-actions" wx:if="{{!isStudent}}">
+        <view 
+          class="action-btn schedule-btn" 
+          data-id="{{item._id}}"
+          data-name="{{item.name}}"
+          catchtap="onViewSchedule"
+        >
+          <text class="action-icon">📅</text>
+          <text>查看课表</text>
+        </view>
+      </view>
+
+      <!-- 快捷操作 (学生视角显示：联系老师) -->
+      <view class="student-actions" wx:if="{{isStudent && item.phone}}">
         <view 
           class="action-btn" 
-          wx:if="{{item.phone}}"
           data-phone="{{item.phone}}"
           catchtap="onCallPhone"
         >
           <text class="action-icon">📞</text>
-          <text>学生</text>
-        </view>
-        <view 
-          class="action-btn" 
-          wx:if="{{item.parentPhone}}"
-          data-phone="{{item.parentPhone}}"
-          catchtap="onCallPhone"
-        >
-          <text class="action-icon">📞</text>
-          <text>家长</text>
+          <text>联系老师</text>
         </view>
       </view>
     </view>
   </view>
 
   <!-- 搜索无结果 -->
-  <view class="empty-state" wx:elif="{{searchText && students.length > 0}}">
+  <view class="empty-state" wx:elif="{{searchText && items.length > 0}}">
     <text class="empty-icon">🔍</text>
-    <text class="empty-text">未找到匹配的学生</text>
+    <text class="empty-text">未找到匹配的{{isStudent ? '老师' : '学生'}}</text>
     <text class="empty-hint">尝试其他关键词</text>
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state" wx:elif="{{!loading && students.length === 0}}">
+  <view class="empty-state" wx:elif="{{!loading && items.length === 0}}">
     <text class="empty-icon">📚</text>
-    <text class="empty-text">暂无学生</text>
-    <text class="empty-hint">点击右上角添加学生</text>
-    <button class="empty-btn" bindtap="onAddStudent">添加第一位学生</button>
+    <text class="empty-text">暂无{{isStudent ? '老师信息' : '学生'}}</text>
+    <text class="empty-hint" wx:if="{{!isStudent}}">点击右上角添加学生</text>
+    <button class="empty-btn" bindtap="onAddStudent" wx:if="{{!isStudent}}">添加第一位学生</button>
   </view>
 
   <!-- 加载中 -->

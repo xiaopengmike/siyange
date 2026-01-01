@@ -5,6 +5,7 @@ Page({
     data: {
         currentUser: null,
         isPrincipal: false,
+        isStudent: false,
         version: '1.0.0'
     },
 
@@ -13,6 +14,13 @@ Page({
     },
 
     onShow() {
+        if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+            const user = app.globalData.currentUser;
+            this.getTabBar().setData({
+                selected: (user && user.role === 'student') ? 1 : 2
+            })
+            this.getTabBar().initByRole();
+        }
         this.loadUserInfo()
     },
 
@@ -29,16 +37,17 @@ Page({
         if (currentUser) {
             this.setData({
                 currentUser,
-                isPrincipal: currentUser.role === 'principal'
+                isPrincipal: currentUser.role === 'principal',
+                isStudent: currentUser.role === 'student'
             })
         }
     },
 
-    // 切换身份
+    // 切换角色
     onSwitchRole() {
         wx.showModal({
-            title: '切换身份',
-            content: '确定要切换登录身份吗？',
+            title: '切换角色',
+            content: '确定要切换登录角色吗？',
             success: (res) => {
                 if (res.confirm) {
                     app.logout()
@@ -63,7 +72,7 @@ Page({
     onHelp() {
         wx.showModal({
             title: '使用帮助',
-            content: '1. 点击课表空白处添加课程\n2. 点击已有课程进行编辑\n3. 左右滑动切换周视图\n4. 校长可查看所有老师课表',
+            content: '1. 点击课表空白处添加课程\n2. 点击已有课程进行编辑\n3. 左右滑动切换周视图',
             showCancel: false
         })
     },

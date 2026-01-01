@@ -57,16 +57,19 @@ async function getTeachers() {
 async function loginTeacher(phone, password) {
     try {
         const { data } = await getDb().collection(COLLECTIONS.TEACHERS)
-            .where({
-                phone: phone,
-                password: password
-            })
+            .where({ phone: phone })
             .get()
 
-        if (data && data.length > 0) {
-            return { success: true, teacher: data[0] }
+        if (!data || data.length === 0) {
+            return { success: false, error: '账号不存在' }
         }
-        return { success: false, error: '账号或密码错误' }
+
+        const user = data[0];
+        if (user.password !== password) {
+            return { success: false, error: '密码错误' }
+        }
+
+        return { success: true, teacher: user }
     } catch (err) {
         console.error('登录失败:', err)
         return { success: false, error: '登录失败，请重试' }
@@ -77,16 +80,19 @@ async function loginTeacher(phone, password) {
 async function loginStudent(phone, password) {
     try {
         const { data } = await getDb().collection(COLLECTIONS.STUDENTS)
-            .where({
-                phone: phone,
-                password: password
-            })
+            .where({ phone: phone })
             .get()
 
-        if (data && data.length > 0) {
-            return { success: true, student: data[0] }
+        if (!data || data.length === 0) {
+            return { success: false, error: '账号不存在' }
         }
-        return { success: false, error: '账号或密码错误' }
+
+        const user = data[0];
+        if (user.password !== password) {
+            return { success: false, error: '密码错误' }
+        }
+
+        return { success: true, student: user }
     } catch (err) {
         console.error('登录失败:', err)
         return { success: false, error: '登录失败，请重试' }
@@ -116,6 +122,32 @@ async function getCoursesByTeacher(teacherId, startDate, endDate) {
         return []
     } catch (err) {
         console.error('获取课程失败:', err)
+        return []
+    }
+}
+
+// 根据学生ID/姓名和日期范围获取课程
+async function getCoursesByStudent(studentId, studentName, startDate, endDate) {
+    try {
+        const result = await wx.cloud.callFunction({
+            name: 'courseManager',
+            data: {
+                action: 'getByStudent',
+                data: {
+                    studentId,
+                    studentName,
+                    startDate,
+                    endDate
+                }
+            }
+        })
+
+        if (result.result && result.result.success) {
+            return result.result.data
+        }
+        return []
+    } catch (err) {
+        console.error('获取学生课程失败:', err)
         return []
     }
 }
@@ -238,10 +270,18 @@ async function getCourseById(courseId) {
 
 // ==================== 学生相关 ====================
 
-// 获取所有学生
-async function getStudents() {
+// 获取所有学生 (支持按创建者过滤)
+async function getStudents(creatorId = null) {
     try {
-        const { data } = await getDb().collection(COLLECTIONS.STUDENTS).orderBy('name', 'asc').get()
+        let query = getDb().collection(COLLECTIONS.STUDENTS);
+
+        if (creatorId) {
+            query = query.where({
+                creatorId: creatorId
+            });
+        }
+
+        const { data } = await query.orderBy('name', 'asc').get();
         return data
     } catch (err) {
         console.error('获取学生列表失败:', err)
@@ -252,6 +292,12 @@ async function getStudents() {
 // 添加学生
 async function addStudent(studentData) {
     try {
+        // 0. 检查姓名唯一性
+        const isUnique = await isNameUnique(studentData.name);
+        if (!isUnique) {
+            return { success: false, error: '该姓名已被老师或学生占用' };
+        }
+
         const result = await getDb().collection(COLLECTIONS.STUDENTS).add({
             data: {
                 ...studentData,
@@ -268,6 +314,14 @@ async function addStudent(studentData) {
 // 更新学生
 async function updateStudent(studentId, studentData) {
     try {
+        // 0. 如果修改了姓名，检查唯一性
+        if (studentData.name) {
+            const isUnique = await isNameUnique(studentData.name, studentId);
+            if (!isUnique) {
+                return { success: false, error: '该姓名已被占用' };
+            }
+        }
+
         await getDb().collection(COLLECTIONS.STUDENTS).doc(studentId).update({
             data: {
                 ...studentData,
@@ -303,6 +357,87 @@ async function getStudentById(studentId) {
     }
 }
 
+/**
+ * 检查姓名是否在全系统内唯一（老师和学生不能重名）
+ * @param {string} name 待检查姓名
+ * @param {string} excludeId 排除的ID (更新时使用)
+ */
+async function isNameUnique(name, excludeId = null) {
+    try {
+        const db = getDb();
+        const cmd = getCmd();
+
+        // 1. 在老师集合中查找
+        let teacherQuery = db.collection(COLLECTIONS.TEACHERS).where({ name: name });
+        if (excludeId) {
+            teacherQuery = teacherQuery.where({
+                _id: cmd.neq(excludeId),
+                teacherId: cmd.neq(excludeId) // 兼容两种ID标识
+            });
+        }
+        const { data: teachers } = await teacherQuery.get();
+        if (teachers.length > 0) return false;
+
+        // 2. 在学生集合中查找
+        let studentQuery = db.collection(COLLECTIONS.STUDENTS).where({ name: name });
+        if (excludeId) {
+            studentQuery = studentQuery.where({
+                _id: cmd.neq(excludeId)
+            });
+        }
+        const { data: students } = await studentQuery.get();
+        if (students.length > 0) return false;
+
+        return true;
+    } catch (err) {
+        console.error('检查姓名唯一性失败:', err);
+        return true;
+    }
+}
+
+// 用户注册
+async function registerUser(role, userData) {
+    try {
+        const collection = role === 'student' ? COLLECTIONS.STUDENTS : COLLECTIONS.TEACHERS;
+
+        // 0. 检查姓名唯一性
+        const isUnique = await isNameUnique(userData.name);
+        if (!isUnique) {
+            return { success: false, error: '该姓名已被老师或学生占用，请尝试其他名称' };
+        }
+
+        // 1. 检查账号(手机号)是否已存在
+        const { data: existing } = await getDb().collection(collection)
+            .where({ phone: userData.phone })
+            .get();
+
+        if (existing && existing.length > 0) {
+            return { success: false, error: '账号(手机号)已被注册' };
+        }
+
+        // 2. 准备基础数据
+        const dataToSave = {
+            ...userData,
+            createTime: getDb().serverDate()
+        };
+
+        // 如果是老师，补充 teacherId (使用手机号作为默认ID)
+        if (role === 'teacher' && !dataToSave.teacherId) {
+            dataToSave.teacherId = userData.phone;
+        }
+
+        // 3. 写入数据库
+        const result = await getDb().collection(collection).add({
+            data: dataToSave
+        });
+
+        return { success: true, id: result._id };
+    } catch (err) {
+        console.error('注册失败:', err);
+        return { success: false, error: err.message || '注册失败，请重试' };
+    }
+}
+
 module.exports = {
     COLLECTIONS,
     initTeachers,
@@ -310,6 +445,7 @@ module.exports = {
     loginTeacher,
     loginStudent,
     getCoursesByTeacher,
+    getCoursesByStudent,
     getAllCourses,
     addCourse,
     updateCourse,
@@ -321,5 +457,7 @@ module.exports = {
     addStudent,
     updateStudent,
     deleteStudent,
-    getStudentById
+    getStudentById,
+    registerUser,
+    isNameUnique
 }

@@ -17,6 +17,11 @@ Component({
         selectedTeacherId: {
             type: String,
             value: ''
+        },
+        // 当前查看的角色 (teacher/student)
+        viewingRole: {
+            type: String,
+            value: 'teacher'
         }
     },
 

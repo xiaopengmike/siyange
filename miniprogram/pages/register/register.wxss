@@ -1,0 +1,18 @@
+/* reuse login styles but customize for register page */
+@import "../login/login.wxss";
+
+.login-step-2 {
+    width: 100%;
+    /* animation: fadeIn 0.4s ease-out; */
+}
+
+.role-display-title {
+  color: #ffffff;
+  margin-bottom: 20rpx;
+}
+
+.footer-text {
+    margin-top: 40rpx;
+    text-decoration: underline;
+    opacity: 0.8;
+}

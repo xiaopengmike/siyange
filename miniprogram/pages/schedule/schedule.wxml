@@ -13,17 +13,22 @@
       </view>
     </view>
     
-    <!-- 老师信息 (老师可见) -->
+    <!-- 身份信息 (老师/学生可见) -->
     <view class="user-info-section" wx:else>
       <view class="avatar-circle" style="background-color: {{currentUser.color || '#4A90D9'}}">
         {{currentUser.name[0]}}
       </view>
-      <text class="teacher-name">{{currentUser.name}}</text>
+      <text class="teacher-name">{{currentUser.name}}{{isStudent ? '的课表' : ''}}</text>
     </view>
 
-    <!-- 退出登录按钮 -->
-    <view class="logout-btn" bindtap="handleLogout">
-      <text>退出</text>
+    <!-- 退出查看/退出登录按钮 -->
+    <view class="actions-group">
+      <view class="return-btn" wx:if="{{viewingOnly}}" bindtap="handleCloseViewStudent">
+        <text>返回我的</text>
+      </view>
+      <view class="logout-btn" bindtap="handleLogout">
+        <text>退出</text>
+      </view>
     </view>
   </view>
 
@@ -49,6 +54,7 @@
       courses="{{courses}}"
       weekOffset="{{weekOffset}}"
       selectedTeacherId="{{currentTeacher.teacherId}}"
+      viewingRole="{{isStudent ? 'student' : 'teacher'}}"
       bind:cellTap="onAddCourse"
       bind:courseTap="onEditCourse"
     />

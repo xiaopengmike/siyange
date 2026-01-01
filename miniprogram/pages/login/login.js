@@ -50,6 +50,12 @@ Page({
         });
     },
 
+    onGoToRegister() {
+        wx.navigateTo({
+            url: `/pages/register/register?role=${this.data.selectedRole}`
+        });
+    },
+
     // 输入账号
     onAccountInput(e) {
         this.setData({

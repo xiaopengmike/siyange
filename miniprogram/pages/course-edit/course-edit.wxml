@@ -43,7 +43,7 @@
         <input 
           class="input-field" 
           name="courseName" 
-          placeholder="请输入课程名称，如：托福听力" 
+          placeholder="请输入课程名称，如：数学" 
           value="{{course.courseName}}"
         />
       </view>
