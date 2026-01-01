@@ -10,48 +10,67 @@
   </view>
 
   <!-- 角色选择卡片 -->
-  <view class="card role-card">
+  <view class="card role-card" wx:if="{{!selectedRole}}">
     <text class="card-title">选择您的身份</text>
     
     <view class="role-options">
       <view 
-        class="role-item {{selectedRole === 'teacher' ? 'active' : ''}}"
+        class="role-item"
         bindtap="selectRole"
         data-role="teacher"
       >
         <view class="role-icon teacher-icon">👨‍🏫</view>
         <text class="role-name">老师</text>
-        <text class="role-desc">管理自己的课程</text>
+        <text class="role-desc">管理课程</text>
       </view>
-      
+
       <view 
-        class="role-item {{selectedRole === 'principal' ? 'active' : ''}}"
+        class="role-item"
         bindtap="selectRole"
-        data-role="principal"
+        data-role="student"
       >
-        <view class="role-icon principal-icon">👑</view>
-        <text class="role-name">校长</text>
-        <text class="role-desc">管理所有老师课程</text>
+        <view class="role-icon student-icon">👫</view>
+        <text class="role-name">家长(学生)</text>
+        <text class="role-desc">查看课程</text>
       </view>
     </view>
   </view>
 
-  <!-- 老师选择 (仅老师身份时显示) -->
-  <view class="card teacher-select-card" wx:if="{{selectedRole === 'teacher'}}">
-    <text class="card-title">选择老师</text>
-    
-    <picker 
-      mode="selector" 
-      range="{{teachers}}" 
-      range-key="name"
-      value="{{selectedTeacherIndex}}"
-      bindchange="onTeacherChange"
-    >
-      <view class="picker-display">
-        <text class="picker-value">{{selectedTeacher ? selectedTeacher.name : '请选择老师'}}</text>
-        <text class="picker-arrow">▼</text>
-      </view>
-    </picker>
+  <!-- 登录信息输入 -->
+  <view class="login-step-2" wx:if="{{selectedRole}}">
+    <view class="back-link" bindtap="resetRole">
+        <text>← 重新选择身份</text>
+    </view>
+
+    <view class="role-display-title">
+        <text>当前身份：{{selectedRole === 'teacher' ? '老师' : '家长(学生)'}}</text>
+    </view>
+
+    <view class="card login-form-card">
+        <text class="card-title">登录信息</text>
+        
+        <view class="input-group">
+        <view class="input-icon">📱</view>
+        <input 
+            class="login-input" 
+            placeholder="请输入账号" 
+            type="number"
+            value="{{account}}"
+            bindinput="onAccountInput"
+        />
+        </view>
+
+        <view class="input-group">
+        <view class="input-icon">🔒</view>
+        <input 
+            class="login-input" 
+            placeholder="请输入密码" 
+            password
+            value="{{password}}"
+            bindinput="onPasswordInput"
+        />
+        </view>
+    </view>
   </view>
 
   <!-- 登录按钮 -->

@@ -4,15 +4,20 @@ const db = require('../../utils/db.js');
 
 Page({
     data: {
-        selectedRole: '',
-        teachers: [],
-        selectedTeacherIndex: -1,
-        selectedTeacher: null,
-        canLogin: false
+        selectedRole: '', // teacher 或 principal
+        account: '',
+        password: '',
+        canLogin: false,
+        loggingIn: false
     },
 
-    onLoad() {
-        this.loadTeachers();
+    async onLoad() {
+        // 自动初始化/更新老师数据（包含账号密码）
+        try {
+            await db.initTeachers();
+        } catch (err) {
+            console.error('初始化数据失败:', err);
+        }
     },
 
     onShow() {
@@ -24,95 +29,111 @@ Page({
         }
     },
 
-    // 加载老师列表
-    async loadTeachers() {
-        wx.showLoading({ title: '加载中...' });
-
-        try {
-            // 初始化老师数据（如果还没有）
-            await db.initTeachers();
-
-            // 获取老师列表
-            const teachers = await db.getTeachers();
-            this.setData({ teachers });
-        } catch (err) {
-            console.error('加载老师列表失败:', err);
-            wx.showToast({
-                title: '加载失败',
-                icon: 'error'
-            });
-        } finally {
-            wx.hideLoading();
-        }
-    },
-
     // 选择角色
     selectRole(e) {
         const role = e.currentTarget.dataset.role;
         this.setData({
             selectedRole: role,
-            selectedTeacherIndex: -1,
-            selectedTeacher: null
+            account: '', // 切换角色时清空输入
+            password: ''
         });
         this.updateCanLogin();
     },
 
-    // 选择老师
-    onTeacherChange(e) {
-        const index = parseInt(e.detail.value);
-        const teacher = this.data.teachers[index];
+    // 重置角色（返回上一步）
+    resetRole() {
         this.setData({
-            selectedTeacherIndex: index,
-            selectedTeacher: teacher
+            selectedRole: '',
+            account: '',
+            password: '',
+            canLogin: false
+        });
+    },
+
+    // 输入账号
+    onAccountInput(e) {
+        this.setData({
+            account: e.detail.value
+        });
+        this.updateCanLogin();
+    },
+
+    // 输入密码
+    onPasswordInput(e) {
+        this.setData({
+            password: e.detail.value
         });
         this.updateCanLogin();
     },
 
     // 更新是否可以登录
     updateCanLogin() {
-        const { selectedRole, selectedTeacher } = this.data;
-        let canLogin = false;
-
-        if (selectedRole === 'principal') {
-            canLogin = true;
-        } else if (selectedRole === 'teacher' && selectedTeacher) {
-            canLogin = true;
-        }
-
+        const { selectedRole, account, password } = this.data;
+        // 简单的非空验证
+        const canLogin = selectedRole && account && account.length > 0 && password && password.length > 0;
         this.setData({ canLogin });
     },
 
     // 处理登录
-    handleLogin() {
-        const { selectedRole, selectedTeacher } = this.data;
+    async handleLogin() {
+        const { selectedRole, account, password } = this.data;
 
-        if (!this.data.canLogin) {
+        if (!this.data.canLogin || this.data.loggingIn) {
             return;
         }
 
-        let currentUser;
+        this.setData({ loggingIn: true });
+        wx.showLoading({ title: '登录中...' });
 
-        if (selectedRole === 'principal') {
-            currentUser = {
-                id: 'principal',
-                name: '校长',
-                role: 'principal'
-            };
-        } else {
-            currentUser = {
-                id: selectedTeacher.teacherId,
-                name: selectedTeacher.name,
-                role: 'teacher',
-                color: selectedTeacher.color
-            };
+        try {
+            let currentUser = null;
+
+            if (selectedRole === 'student') {
+                // 家长登录：基础验证 (测试用)
+                if (account === '18871458537' && password === '18871458537') {
+                    currentUser = {
+                        id: 'student',
+                        name: '家长(测试)',
+                        role: 'student'
+                    };
+                } else {
+                    wx.showToast({ title: '账号或密码错误', icon: 'error' });
+                    this.setData({ loggingIn: false });
+                    return;
+                }
+            } else {
+                // 老师登录：数据库验证
+                const result = await db.loginTeacher(account, password);
+
+                if (result.success) {
+                    const teacher = result.teacher;
+                    currentUser = {
+                        id: teacher.teacherId,
+                        name: teacher.name,
+                        role: 'teacher',
+                        color: teacher.color
+                    };
+                } else {
+                    wx.showToast({ title: result.error || '登录失败', icon: 'error' });
+                    this.setData({ loggingIn: false });
+                    return;
+                }
+            }
+
+            // 保存登录状态
+            app.setCurrentUser(currentUser);
+
+            // 跳转到排课页面
+            wx.switchTab({
+                url: '/pages/schedule/schedule'
+            });
+
+        } catch (err) {
+            console.error('登录异常:', err);
+            wx.showToast({ title: '系统错误', icon: 'error' });
+        } finally {
+            wx.hideLoading();
+            this.setData({ loggingIn: false });
         }
-
-        // 保存登录状态
-        app.setCurrentUser(currentUser);
-
-        // 跳转到排课页面
-        wx.switchTab({
-            url: '/pages/schedule/schedule'
-        });
     }
 });
