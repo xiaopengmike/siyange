@@ -89,15 +89,19 @@ Page({
             let currentUser = null;
 
             if (selectedRole === 'student') {
-                // 家长登录：基础验证 (测试用)
-                if (account === '18871458537' && password === '18871458537') {
+                // 家长登录：数据库验证
+                const result = await db.loginStudent(account, password);
+
+                if (result.success) {
+                    const student = result.student;
                     currentUser = {
-                        id: 'student',
-                        name: '家长(测试)',
-                        role: 'student'
+                        id: student._id || student.studentId,
+                        name: student.name,
+                        role: 'student',
+                        color: student.color || '#FFD700'
                     };
                 } else {
-                    wx.showToast({ title: '账号或密码错误', icon: 'error' });
+                    wx.showToast({ title: result.error || '账号或密码错误', icon: 'error' });
                     this.setData({ loggingIn: false });
                     return;
                 }

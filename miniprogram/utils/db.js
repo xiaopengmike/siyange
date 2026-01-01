@@ -73,6 +73,26 @@ async function loginTeacher(phone, password) {
     }
 }
 
+// 学生/家长登录
+async function loginStudent(phone, password) {
+    try {
+        const { data } = await getDb().collection(COLLECTIONS.STUDENTS)
+            .where({
+                phone: phone,
+                password: password
+            })
+            .get()
+
+        if (data && data.length > 0) {
+            return { success: true, student: data[0] }
+        }
+        return { success: false, error: '账号或密码错误' }
+    } catch (err) {
+        console.error('登录失败:', err)
+        return { success: false, error: '登录失败，请重试' }
+    }
+}
+
 // ==================== 课程相关 (使用云函数) ====================
 
 // 根据老师ID和日期范围获取课程
@@ -288,6 +308,7 @@ module.exports = {
     initTeachers,
     getTeachers,
     loginTeacher,
+    loginStudent,
     getCoursesByTeacher,
     getAllCourses,
     addCourse,

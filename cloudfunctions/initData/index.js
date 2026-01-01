@@ -15,23 +15,27 @@ const DEFAULT_TEACHERS = [
     { teacherId: 'teacher_004', name: '李老师', color: '#AB47BC', phone: '123456', password: '123456' }
 ]
 
+// 默认学生数据
+const DEFAULT_STUDENTS = [
+    { studentId: 'student_001', name: 'Siyi Xiao', phone: '17665388809', password: '17665388809', color: '#FFD700' }
+]
+
 // 云函数入口函数
 exports.main = async (event, context) => {
     const wxContext = cloud.getWXContext()
 
     try {
         const teachersCollection = db.collection('teachers')
-        const results = []
+        const studentsCollection = db.collection('students')
+        const results = { teachers: [], students: [] }
 
         // 遍历更新或添加老师
         for (const teacher of DEFAULT_TEACHERS) {
-            // 检查老师是否存在
             const checkRes = await teachersCollection.where({
                 teacherId: teacher.teacherId
             }).get()
 
             if (checkRes.data.length > 0) {
-                // 更新现有老师 (添加 phone 和 password)
                 const docId = checkRes.data[0]._id
                 await teachersCollection.doc(docId).update({
                     data: {
@@ -39,22 +43,48 @@ exports.main = async (event, context) => {
                         password: teacher.password
                     }
                 })
-                results.push({ action: 'update', teacherId: teacher.teacherId })
+                results.teachers.push({ action: 'update', teacherId: teacher.teacherId })
             } else {
-                // 添加新老师
                 await teachersCollection.add({
                     data: {
                         ...teacher,
                         createTime: db.serverDate()
                     }
                 })
-                results.push({ action: 'add', teacherId: teacher.teacherId })
+                results.teachers.push({ action: 'add', teacherId: teacher.teacherId })
+            }
+        }
+
+        // 遍历更新或添加学生
+        for (const student of DEFAULT_STUDENTS) {
+            const checkRes = await studentsCollection.where({
+                name: student.name
+            }).get()
+
+            if (checkRes.data.length > 0) {
+                const docId = checkRes.data[0]._id
+                await studentsCollection.doc(docId).update({
+                    data: {
+                        phone: student.phone,
+                        password: student.password,
+                        studentId: student.studentId // 补充 ID
+                    }
+                })
+                results.students.push({ action: 'update', name: student.name })
+            } else {
+                await studentsCollection.add({
+                    data: {
+                        ...student,
+                        createTime: db.serverDate()
+                    }
+                })
+                results.students.push({ action: 'add', name: student.name })
             }
         }
 
         return {
             success: true,
-            message: '初始化/更新老师数据成功',
+            message: '初始化/更新数据成功',
             results,
             openid: wxContext.OPENID
         }
