@@ -28,6 +28,8 @@ const COLLECTIONS = {
 
 // ==================== 老师相关 ====================
 
+// ==================== 老师相关 ====================
+
 // 初始化老师数据（调用云函数）
 async function initTeachers() {
     try {
@@ -42,11 +44,17 @@ async function initTeachers() {
     }
 }
 
-// 获取所有老师
-async function getTeachers() {
+// 获取所有老师 (支持角色筛选)
+async function getTeachers(role) {
     try {
-        const { data } = await getDb().collection(COLLECTIONS.TEACHERS).get()
-        return data
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
+            data: {
+                action: 'getTeachers',
+                data: { role }
+            }
+        })
+        return result.result.success ? result.result.data : []
     } catch (err) {
         console.error('获取老师列表失败:', err)
         return []
@@ -56,20 +64,15 @@ async function getTeachers() {
 // 老师登录
 async function loginTeacher(phone, password) {
     try {
-        const { data } = await getDb().collection(COLLECTIONS.TEACHERS)
-            .where({ phone: phone })
-            .get()
-
-        if (!data || data.length === 0) {
-            return { success: false, error: '账号不存在' }
-        }
-
-        const user = data[0];
-        if (user.password !== password) {
-            return { success: false, error: '密码错误' }
-        }
-
-        return { success: true, teacher: user }
+        const result = await wx.cloud.callFunction({
+            name: 'login',
+            data: {
+                role: 'teacher',
+                account: phone,
+                password: password
+            }
+        })
+        return result.result
     } catch (err) {
         console.error('登录失败:', err)
         return { success: false, error: '登录失败，请重试' }
@@ -79,20 +82,16 @@ async function loginTeacher(phone, password) {
 // 学生/家长登录
 async function loginStudent(phone, password) {
     try {
-        const { data } = await getDb().collection(COLLECTIONS.STUDENTS)
-            .where({ phone: phone })
-            .get()
-
-        if (!data || data.length === 0) {
-            return { success: false, error: '账号不存在' }
-        }
-
-        const user = data[0];
-        if (user.password !== password) {
-            return { success: false, error: '密码错误' }
-        }
-
-        return { success: true, student: user }
+        const result = await wx.cloud.callFunction({
+            name: 'login',
+            data: {
+                role: 'student',
+                account: phone,
+                password: password
+            }
+        })
+        // 适配返回结构
+        return result.result
     } catch (err) {
         console.error('登录失败:', err)
         return { success: false, error: '登录失败，请重试' }
@@ -260,8 +259,14 @@ async function checkTimeConflict(teacherId, date, startTime, endTime, excludeCou
 // 根据课程ID获取课程详情
 async function getCourseById(courseId) {
     try {
-        const { data } = await getDb().collection(COLLECTIONS.COURSES).doc(courseId).get()
-        return data
+        const result = await wx.cloud.callFunction({
+            name: 'courseManager',
+            data: {
+                action: 'getById',
+                data: { courseId }
+            }
+        })
+        return result.result.success ? result.result.data : null
     } catch (err) {
         console.error('获取课程详情失败:', err)
         return null
@@ -273,16 +278,14 @@ async function getCourseById(courseId) {
 // 获取所有学生 (支持按创建者过滤)
 async function getStudents(creatorId = null) {
     try {
-        let query = getDb().collection(COLLECTIONS.STUDENTS);
-
-        if (creatorId) {
-            query = query.where({
-                creatorId: creatorId
-            });
-        }
-
-        const { data } = await query.orderBy('name', 'asc').get();
-        return data
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
+            data: {
+                action: 'getStudents',
+                data: { creatorId }
+            }
+        })
+        return result.result.success ? result.result.data : []
     } catch (err) {
         console.error('获取学生列表失败:', err)
         return []
@@ -292,19 +295,14 @@ async function getStudents(creatorId = null) {
 // 添加学生
 async function addStudent(studentData) {
     try {
-        // 0. 检查姓名唯一性
-        const isUnique = await isNameUnique(studentData.name);
-        if (!isUnique) {
-            return { success: false, error: '该姓名已被老师或学生占用' };
-        }
-
-        const result = await getDb().collection(COLLECTIONS.STUDENTS).add({
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
             data: {
-                ...studentData,
-                createTime: getDb().serverDate()
+                action: 'addStudent',
+                data: studentData
             }
         })
-        return { success: true, id: result._id }
+        return result.result
     } catch (err) {
         console.error('添加学生失败:', err)
         return { success: false, error: err.message || err.errMsg }
@@ -314,21 +312,17 @@ async function addStudent(studentData) {
 // 更新学生
 async function updateStudent(studentId, studentData) {
     try {
-        // 0. 如果修改了姓名，检查唯一性
-        if (studentData.name) {
-            const isUnique = await isNameUnique(studentData.name, studentId);
-            if (!isUnique) {
-                return { success: false, error: '该姓名已被占用' };
-            }
-        }
-
-        await getDb().collection(COLLECTIONS.STUDENTS).doc(studentId).update({
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
             data: {
-                ...studentData,
-                updateTime: getDb().serverDate()
+                action: 'updateStudent',
+                data: {
+                    studentId,
+                    ...studentData
+                }
             }
         })
-        return { success: true }
+        return result.result
     } catch (err) {
         console.error('更新学生失败:', err)
         return { success: false, error: err.message || err.errMsg }
@@ -338,8 +332,14 @@ async function updateStudent(studentId, studentData) {
 // 删除学生
 async function deleteStudent(studentId) {
     try {
-        await getDb().collection(COLLECTIONS.STUDENTS).doc(studentId).remove()
-        return { success: true }
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
+            data: {
+                action: 'deleteStudent',
+                data: { studentId }
+            }
+        })
+        return result.result
     } catch (err) {
         console.error('删除学生失败:', err)
         return { success: false, error: err.message || err.errMsg }
@@ -349,8 +349,14 @@ async function deleteStudent(studentId) {
 // 获取学生详情
 async function getStudentById(studentId) {
     try {
-        const { data } = await getDb().collection(COLLECTIONS.STUDENTS).doc(studentId).get()
-        return data
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
+            data: {
+                action: 'getStudentById',
+                data: { studentId }
+            }
+        })
+        return result.result.success ? result.result.data : null
     } catch (err) {
         console.error('获取学生详情失败:', err)
         return null
@@ -359,36 +365,17 @@ async function getStudentById(studentId) {
 
 /**
  * 检查姓名是否在全系统内唯一（老师和学生不能重名）
- * @param {string} name 待检查姓名
- * @param {string} excludeId 排除的ID (更新时使用)
  */
 async function isNameUnique(name, excludeId = null) {
     try {
-        const db = getDb();
-        const cmd = getCmd();
-
-        // 1. 在老师集合中查找
-        let teacherQuery = db.collection(COLLECTIONS.TEACHERS).where({ name: name });
-        if (excludeId) {
-            teacherQuery = teacherQuery.where({
-                _id: cmd.neq(excludeId),
-                teacherId: cmd.neq(excludeId) // 兼容两种ID标识
-            });
-        }
-        const { data: teachers } = await teacherQuery.get();
-        if (teachers.length > 0) return false;
-
-        // 2. 在学生集合中查找
-        let studentQuery = db.collection(COLLECTIONS.STUDENTS).where({ name: name });
-        if (excludeId) {
-            studentQuery = studentQuery.where({
-                _id: cmd.neq(excludeId)
-            });
-        }
-        const { data: students } = await studentQuery.get();
-        if (students.length > 0) return false;
-
-        return true;
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
+            data: {
+                action: 'checkNameUnique',
+                data: { name, excludeId }
+            }
+        })
+        return result.result.isUnique
     } catch (err) {
         console.error('检查姓名唯一性失败:', err);
         return true;
@@ -398,40 +385,14 @@ async function isNameUnique(name, excludeId = null) {
 // 用户注册
 async function registerUser(role, userData) {
     try {
-        const collection = role === 'student' ? COLLECTIONS.STUDENTS : COLLECTIONS.TEACHERS;
-
-        // 0. 检查姓名唯一性
-        const isUnique = await isNameUnique(userData.name);
-        if (!isUnique) {
-            return { success: false, error: '该姓名已被老师或学生占用，请尝试其他名称' };
-        }
-
-        // 1. 检查账号(手机号)是否已存在
-        const { data: existing } = await getDb().collection(collection)
-            .where({ phone: userData.phone })
-            .get();
-
-        if (existing && existing.length > 0) {
-            return { success: false, error: '账号(手机号)已被注册' };
-        }
-
-        // 2. 准备基础数据
-        const dataToSave = {
-            ...userData,
-            createTime: getDb().serverDate()
-        };
-
-        // 如果是老师，补充 teacherId (使用手机号作为默认ID)
-        if (role === 'teacher' && !dataToSave.teacherId) {
-            dataToSave.teacherId = userData.phone;
-        }
-
-        // 3. 写入数据库
-        const result = await getDb().collection(collection).add({
-            data: dataToSave
-        });
-
-        return { success: true, id: result._id };
+        const result = await wx.cloud.callFunction({
+            name: 'userManager',
+            data: {
+                action: 'registerUser',
+                data: { role, ...userData }
+            }
+        })
+        return result.result
     } catch (err) {
         console.error('注册失败:', err);
         return { success: false, error: err.message || '注册失败，请重试' };

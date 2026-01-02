@@ -16,10 +16,10 @@
         <text class="role-name">老师</text>
         <text class="role-desc">注册并管理课程</text>
       </view>
-      <view class="role-item" bindtap="selectRole" data-role="student">
-        <view class="role-icon student-icon">👫</view>
-        <text class="role-name">家长/学生</text>
-        <text class="role-desc">注册并查看课表</text>
+      <view class="role-item" bindtap="selectRole" data-role="principal">
+        <view class="role-icon student-icon">🏫</view>
+        <text class="role-name">校长</text>
+        <text class="role-desc">注册并管理全校课表</text>
       </view>
     </view>
   </view>
@@ -30,7 +30,7 @@
       <text>← 返回选择角色</text>
     </view>
     <view class="role-display-title">
-      <text>注册角色：{{role === 'teacher' ? '老师' : '家长/学生'}}</text>
+      <text>注册角色：{{role === 'teacher' ? '老师' : '校长'}}</text>
     </view>
 
     <view class="card login-form-card">
@@ -40,7 +40,7 @@
         <view class="input-icon">👤</view>
         <input 
           class="login-input" 
-          placeholder="{{role === 'teacher' ? '您的姓名' : '学生姓名'}}" 
+          placeholder="{{role === 'teacher' ? '您的姓名' : '校长姓名'}}" 
           value="{{name}}"
           bindinput="onNameInput"
         />

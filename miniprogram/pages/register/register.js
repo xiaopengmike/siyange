@@ -77,10 +77,7 @@ Page({
         role
       }
 
-      // 为学生/家长保留 parentName 字段(默认与学生名一致或留空)
-      if (role === 'student') {
-        userData.parentPhone = phone
-      }
+      // 校长和老师都存储在老师集合中
 
       const result = await db.registerUser(role, userData)
 

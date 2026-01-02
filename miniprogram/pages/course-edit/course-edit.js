@@ -57,7 +57,16 @@ Page({
     // 加载学生列表
     async loadStudents() {
         try {
-            const students = await db.getStudents()
+            const user = app.globalData.currentUser;
+            let creatorId = null;
+
+            // 如果不是校长，只能看自己创建的学生
+            if (user && user.role !== 'principal') {
+                // fix: 优先使用 phone，因为添加学生时使用的是 phone 作为 creatorId
+                creatorId = user.phone || user.id;
+            }
+
+            const students = await db.getStudents(creatorId)
             this.setData({ students })
         } catch (err) {
             console.error('加载学生列表失败:', err)
@@ -68,8 +77,11 @@ Page({
     async loadCourseDetail(courseId) {
         wx.showLoading({ title: '加载中...' })
         try {
-            const dbInstance = wx.cloud.database()
-            const { data } = await dbInstance.collection('courses').doc(courseId).get()
+            const data = await db.getCourseById(courseId)
+
+            if (!data) {
+                throw new Error('未找到课程信息')
+            }
 
             // 获取周几的名称
             const dayIndex = new Date(data.date).getDay()

@@ -27,11 +27,11 @@
       <view 
         class="role-item"
         bindtap="selectRole"
-        data-role="student"
+        data-role="principal"
       >
-        <view class="role-icon student-icon">👫</view>
-        <text class="role-name">家长/学生</text>
-        <text class="role-desc">查看课程</text>
+        <view class="role-icon student-icon">🏫</view>
+        <text class="role-name">校长</text>
+        <text class="role-desc">全局管理</text>
       </view>
     </view>
   </view>
@@ -39,20 +39,41 @@
   <!-- 登录信息输入 -->
   <view class="login-step-2" wx:if="{{selectedRole}}">
     <view class="role-display-title">
-        <text>当前角色：{{selectedRole === 'teacher' ? '老师' : '家长/学生'}}</text>
+        <text>当前角色：{{selectedRole === 'teacher' ? '老师' : '校长'}}</text>
     </view>
     <view class="card login-form-card">
         <text class="card-title">登录信息</text>
         
-        <view class="input-group">
-        <view class="input-icon">📱</view>
-        <input 
-            class="login-input" 
-            placeholder="请输入账号" 
-            type="number"
-            value="{{account}}"
-            bindinput="onAccountInput"
-        />
+        <!-- 老师选择姓名 (仅老师角色显示) -->
+        <view class="input-group" wx:if="{{selectedRole === 'teacher'}}">
+            <view class="input-icon">👤</view>
+            <picker 
+                class="login-input picker-input" 
+                bindchange="onTeacherPickerChange" 
+                value="{{selectedTeacherIndex}}" 
+                range="{{teachers}}" 
+                range-key="name"
+            >
+                <view class="picker-display {{selectedTeacherIndex === -1 ? 'placeholder' : ''}}">
+                    {{selectedTeacherIndex === -1 ? '请选择您的姓名' : teachers[selectedTeacherIndex].name}}
+                </view>
+            </picker>
+        </view>
+
+        <!-- 校长选择姓名 (改为下拉选择) -->
+        <view class="input-group" wx:if="{{selectedRole === 'principal'}}">
+            <view class="input-icon">👤</view>
+            <picker 
+                class="login-input picker-input" 
+                bindchange="onTeacherPickerChange" 
+                value="{{selectedTeacherIndex}}" 
+                range="{{teachers}}" 
+                range-key="name"
+            >
+                <view class="picker-display {{selectedTeacherIndex === -1 ? 'placeholder' : ''}}">
+                    {{selectedTeacherIndex === -1 ? '请选择校长姓名' : teachers[selectedTeacherIndex].name}}
+                </view>
+            </picker>
         </view>
 
         <view class="input-group">
@@ -65,6 +86,16 @@
             bindinput="onPasswordInput"
         />
         </view>
+
+        <!-- 记住密码 -->
+        <view class="remember-password-container">
+            <checkbox-group bindchange="onRememberPasswordChange">
+                <label class="remember-label">
+                    <checkbox value="remember" checked="{{rememberPassword}}" color="#4A90D9" style="transform:scale(0.8)"/>
+                    <text>记住密码</text>
+                </label>
+            </checkbox-group>
+        </view>
     </view>
 
     <!-- 辅助操作 -->
@@ -73,10 +104,12 @@
             <text class="action-icon">↺</text>
             <text>重新选择角色</text>
         </view>
+        <!-- 注册功能暂时隐藏
         <view class="action-btn register-btn" bindtap="onGoToRegister">
             <text class="action-icon">✚</text>
             <text>注册账号</text>
         </view>
+        -->
     </view>
   </view>
 

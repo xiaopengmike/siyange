@@ -155,7 +155,22 @@
   flex: 1;
   font-size: 30rpx;
   color: #333333;
-  height: 44rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+}
+
+.picker-input {
+  width: 100%;
+}
+
+.picker-display {
+  width: 100%;
+  color: #333333;
+}
+
+.picker-display.placeholder {
+  color: #999999;
 }
 
 /* 辅助操作区域 */

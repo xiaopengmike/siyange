@@ -28,6 +28,8 @@ exports.main = async (event, context) => {
             return getAllCourses(data)
         case 'checkConflict':
             return checkTimeConflict(data)
+        case 'getById':
+            return getCourseById(data)
         default:
             return { success: false, error: '未知操作' }
     }
@@ -228,5 +230,17 @@ async function checkTimeConflict(data) {
     } catch (err) {
         console.error('检查时间冲突失败:', err)
         return { hasConflict: false }
+
+        // 根据ID获取课程
+        async function getCourseById(data) {
+            const { courseId } = data
+            try {
+                const { data: course } = await db.collection('courses').doc(courseId).get()
+                return { success: true, data: course }
+            } catch (err) {
+                console.error('获取课程详情失败:', err)
+                return { success: false, error: err.message || err.errMsg }
+            }
+        }
     }
 }

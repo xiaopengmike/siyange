@@ -1,0 +1,16 @@
+{
+    "name": "siyange-teacher-scheduling",
+    "version": "1.0.0",
+    "description": "思研阁老师排课小程序",
+    "main": "app.js",
+    "scripts": {
+        "test": "jest ./test --runInBand --forceExit"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "miniprogram-automator": "^0.11.0"
+    },
+    "author": "Antigravity",
+    "license": "ISC"
+}
